@@ -3,6 +3,7 @@
 import os
 import shutil
 import subprocess
+import time
 import uuid
 
 from smart_code_builder.config import TEMP_DIR
@@ -27,11 +28,28 @@ _ANALYZABLE_EXTENSIONS = {
 }
 
 
+def _cleanup_old_repos(max_age_hours: int = 2) -> None:
+    """Limpia repos clonados hace mas de max_age_hours.
+
+    Previene acumulación de directorios temporales en disco.
+
+    Args:
+        max_age_hours: Edad máxima en horas antes de eliminar.
+    """
+    if not os.path.exists(TEMP_DIR):
+        return
+    cutoff = time.time() - (max_age_hours * 3600)
+    for entry in os.scandir(TEMP_DIR):
+        if entry.is_dir() and entry.stat().st_mtime < cutoff:
+            shutil.rmtree(entry.path, ignore_errors=True)
+
+
 def clone_git_repository(repo_url: str) -> str:
     """Clona un repositorio git publico a un directorio temporal.
 
     Realiza un shallow clone (--depth 1) para rapidez. Solo soporta
-    repositorios publicos con URL HTTPS.
+    repositorios publicos con URL HTTPS. Limpia repos antiguos antes
+    de clonar para evitar acumulación en disco.
 
     Args:
         repo_url: URL HTTPS del repositorio git.
@@ -39,6 +57,7 @@ def clone_git_repository(repo_url: str) -> str:
     Returns:
         Path absoluto al directorio donde se clono el repo.
     """
+    _cleanup_old_repos()
     clone_dir = os.path.join(TEMP_DIR, f"repo-{uuid.uuid4().hex[:8]}")
     os.makedirs(clone_dir, exist_ok=True)
     subprocess.run(

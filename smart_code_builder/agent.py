@@ -2,14 +2,15 @@
 
 from google.adk.agents import LlmAgent
 
-from smart_code_builder.model import get_model
+from smart_code_builder.model import get_model, get_generate_config
 from smart_code_builder.audit_agent import audit_agent
 from smart_code_builder.create_agent import create_agent
 from smart_code_builder.improve_agent import improve_agent
 from smart_code_builder.modernize_agent import modernize_agent
 
 root_agent = LlmAgent(
-    model=get_model(),
+    model=get_model("router"),
+    generate_content_config=get_generate_config("router"),
     name="smart_code_builder",
     instruction="""Eres el BWIA Smart Code Builder, un asistente de
 desarrollo inteligente potenciado por Gemini y Google ADK.

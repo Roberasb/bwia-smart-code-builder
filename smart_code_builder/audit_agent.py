@@ -1,11 +1,12 @@
 """Pipeline de auditoria de repositorios.
 
-Secuencia: Crawl repo -> Generar reporte
+Secuencia: Crawl repo -> Generar reporte.
+Crawler usa modelo rapido (Flash), Reporter usa modelo pesado (Pro).
 """
 
 from google.adk.agents import LlmAgent, SequentialAgent
 
-from smart_code_builder.model import get_model
+from smart_code_builder.model import get_model, get_generate_config
 from smart_code_builder._tools.file_tools import (
     clone_git_repository,
     list_analyzable_files,
@@ -13,14 +14,14 @@ from smart_code_builder._tools.file_tools import (
     read_file_content,
 )
 from smart_code_builder._tools.standards_tools import load_coding_standards
-
-_model = get_model()
+from smart_code_builder._tools.token_tools import estimate_tokens
 
 repo_crawler_agent = LlmAgent(
-    model=_model,
+    model=get_model("fast"),
+    generate_content_config=get_generate_config("fast"),
     name="repo_crawler",
     instruction="""Eres un explorador de repositorios. Tu tarea es clonar
-y analizar la estructura de un repositorio.
+y analizar la estructura de un repositorio de forma eficiente.
 
 PROCESO:
 1. Usa clone_git_repository con la URL del mensaje
@@ -30,20 +31,27 @@ PROCESO:
    - Entry points (main.py, index.js, app.py)
    - Config (package.json, requirements.txt, pyproject.toml, Dockerfile)
    - README si existe
+5. Usa estimate_tokens para verificar que el contenido acumulado no
+   exceda un tamaño razonable. Si un archivo es muy grande, omite las
+   partes menos relevantes.
 
 FORMATO: Incluye TODO el contenido de los archivos leidos en tu
-respuesta, los agentes siguientes lo necesitan como contexto.""",
+respuesta, los agentes siguientes lo necesitan como contexto.
+Se conciso: incluye solo el contenido relevante, no repitas
+metadatos ya cubiertos por el tree.""",
     tools=[
         clone_git_repository,
         list_repository_tree,
         list_analyzable_files,
         read_file_content,
+        estimate_tokens,
     ],
     output_key="repo_structure",
 )
 
 audit_reporter_agent = LlmAgent(
-    model=_model,
+    model=get_model("heavy"),
+    generate_content_config=get_generate_config("heavy"),
     name="audit_reporter",
     instruction="""Eres un auditor senior de codigo. Con base en la
 estructura y contenido del repositorio (en el contexto), genera un

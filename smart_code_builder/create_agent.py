@@ -2,11 +2,12 @@
 
 from google.adk.agents import LlmAgent
 
-from smart_code_builder.model import get_model
+from smart_code_builder.model import get_model, get_generate_config
 from smart_code_builder._tools.standards_tools import load_coding_standards
 
 create_agent = LlmAgent(
-    model=get_model(),
+    model=get_model("fast"),
+    generate_content_config=get_generate_config("fast"),
     name="create_code",
     description=(
         "Crea codigo nuevo desde una descripcion en lenguaje natural "

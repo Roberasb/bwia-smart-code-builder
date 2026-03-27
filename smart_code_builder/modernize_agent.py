@@ -2,12 +2,13 @@
 
 from google.adk.agents import LlmAgent
 
-from smart_code_builder.model import get_model
+from smart_code_builder.model import get_model, get_generate_config
 from smart_code_builder._tools.code_tools import detect_code_language
 from smart_code_builder._tools.standards_tools import load_coding_standards
 
 modernize_agent = LlmAgent(
-    model=get_model(),
+    model=get_model("heavy"),
+    generate_content_config=get_generate_config("heavy"),
     name="modernize_code",
     description=(
         "Moderniza codigo legacy a versiones actuales "

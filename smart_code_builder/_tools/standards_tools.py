@@ -1,6 +1,7 @@
 """Tools para cargar estandares de codificacion open source."""
 
 import os
+from functools import lru_cache
 
 from smart_code_builder.config import STANDARDS_DIR
 
@@ -11,6 +12,23 @@ _STANDARDS_MAP: dict[str, str] = {
 }
 
 
+@lru_cache(maxsize=4)
+def _read_standards_file(filepath: str) -> str:
+    """Lee y cachea un archivo de estandares desde disco.
+
+    Usa lru_cache para evitar lecturas repetidas del mismo archivo.
+    Los standards son estáticos durante la ejecución del servidor.
+
+    Args:
+        filepath: Path absoluto al archivo de estandares.
+
+    Returns:
+        Contenido del archivo como string.
+    """
+    with open(filepath, "r", encoding="utf-8") as f:
+        return f.read()
+
+
 def load_coding_standards(language: str) -> str:
     """Carga los estandares de codificacion para el lenguaje especificado.
 
@@ -18,6 +36,8 @@ def load_coding_standards(language: str) -> str:
     source de la industria (PEP 8, Google Style Guides, guias
     comunitarias). Incluye convenciones de naming, formateo, type hints,
     testing, error handling, tooling moderno, y mas.
+
+    Los archivos se cachean en memoria tras la primera lectura.
 
     Args:
         language: Lenguaje de programacion (python, typescript,
@@ -37,5 +57,4 @@ def load_coding_standards(language: str) -> str:
     if not os.path.exists(filepath):
         return f"Archivo de estandares no encontrado: {filepath}"
 
-    with open(filepath, "r", encoding="utf-8") as f:
-        return f.read()
+    return _read_standards_file(filepath)

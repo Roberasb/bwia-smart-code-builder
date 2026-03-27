@@ -1,0 +1,8 @@
+# BWIA Smart Code Builder - Base Dependencies
+# Use pip-compile to generate: pip-compile requirements.in
+
+# AI Agent Framework
+google-adk>=1.0.0
+
+# Environment
+python-dotenv>=1.0.0

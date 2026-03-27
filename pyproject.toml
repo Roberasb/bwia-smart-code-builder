@@ -1,0 +1,16 @@
+[project]
+name = "bwia-smart-code-builder"
+version = "0.1.0"
+description = "Build Smarter Code With AI Agents - Claude on Vertex AI"
+requires-python = ">=3.11"
+
+[tool.black]
+line-length = 80
+target-version = ["py311"]
+
+[tool.pylint.messages_control]
+disable = ["C0114", "C0115", "C0116"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true

@@ -74,24 +74,39 @@ git clone https://github.com/<your-username>/bwia-smart-code-builder.git
 cd bwia-smart-code-builder
 ```
 
-### 2. Set up environment
+### 2. Set up environment (Recommended)
+
+The easiest way to get started is using the provided setup scripts. These will automatically:
+- Detect your OS.
+- Install **Python 3.11+** and **Google Cloud CLI** if missing.
+- Create a virtual environment and install dependencies.
+- Configure your `.env` file and GCP authentication.
+
+**Linux/macOS:**
+```bash
+bash scripts/setup.sh
+```
+
+**Windows (PowerShell):**
+```powershell
+.\scripts\setup.ps1
+```
+
+### 3. Manual setup (Optional)
+
+If you prefer to set up manually:
 
 ```bash
 # Create virtual environment
 python -m venv .venv
-source .venv/bin/activate
+source .venv/bin/activate  # On Windows: .\.venv\Scripts\Activate.ps1
 
 # Install dependencies
 pip install -r requirements.txt
 
-# Or use the setup script
-bash scripts/setup.sh
-```
-
-### 3. Configure environment variables
-
-```bash
+# Configure environment
 cp .env.example .env
+# Edit .env with your GCP_PROJECT_ID
 ```
 
 Edit `.env` with your values:

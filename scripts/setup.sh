@@ -6,18 +6,52 @@ echo "  BWIA Smart Code Builder - Workshop Setup"
 echo "============================================"
 echo ""
 
-# Verificar prerequisitos
+# Verificar e instalar prerequisitos
 echo "[1/5] Verificando prerequisitos..."
 
-if ! command -v gcloud &>/dev/null; then
-    echo "ERROR: gcloud CLI no esta instalado."
-    echo "Descarga: https://cloud.google.com/sdk/docs/install"
-    exit 1
-fi
+OS="$(uname -s)"
 
-if ! command -v python3 &>/dev/null; then
-    echo "ERROR: python3 no esta instalado."
-    exit 1
+install_gcloud_linux() {
+    echo "  - Instalando Google Cloud CLI para Linux..."
+    sudo apt-get update
+    sudo apt-get install -y apt-transport-https ca-certificates gnupg curl
+    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
+    echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+    sudo apt-get update && sudo apt-get install -y google-cloud-cli
+}
+
+if [ "$OS" = "Darwin" ]; then
+    echo "  - Detectado macOS. Usando Homebrew..."
+    if ! command -v brew &>/dev/null; then
+        echo "ERROR: Homebrew no está instalado. Instálalo en https://brew.sh/"
+        exit 1
+    fi
+    if ! command -v python3 &>/dev/null; then
+        echo "  - Instalando Python..."
+        brew install python
+    fi
+    if ! command -v gcloud &>/dev/null; then
+        echo "  - Instalando Google Cloud CLI..."
+        brew install --cask google-cloud-sdk
+    fi
+elif [ "$OS" = "Linux" ]; then
+    echo "  - Detectado Linux. Usando apt..."
+    if ! command -v python3 &>/dev/null; then
+        echo "  - Instalando Python..."
+        sudo apt-get update && sudo apt-get install -y python3 python3-venv python3-pip
+    fi
+    if ! command -v gcloud &>/dev/null; then
+        install_gcloud_linux
+    fi
+    
+    # Limpiar caché de rutas del shell
+    hash -r
+else
+    echo "  - Sistema operativo no reconocido para instalación automática ($OS)."
+    if ! command -v python3 &>/dev/null || ! command -v gcloud &>/dev/null; then
+        echo "ERROR: Por favor instala Python3 y gcloud CLI manualmente."
+        exit 1
+    fi
 fi
 
 PYTHON_VERSION=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")

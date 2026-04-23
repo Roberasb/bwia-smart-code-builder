@@ -76,11 +76,16 @@ cd bwia-smart-code-builder
 
 ### 2. Set up environment (Recommended)
 
-The easiest way to get started is using the provided setup scripts. These will automatically:
-- Detect your OS.
-- Install **Python 3.11+** and **Google Cloud CLI** if missing.
-- Create a virtual environment and install dependencies.
-- Configure your `.env` file and GCP authentication.
+The easiest way to get started is using the provided setup scripts. They run an 8-step automated setup:
+
+1. **Validate project directory** — ensures you're in the repo root
+2. **Install prerequisites** — Python 3.11+, Google Cloud CLI, git (via `brew`, `apt`, `dnf`, `pacman` or `winget`)
+3. **Configure GCP authentication** — `gcloud auth login` + ADC for the SDK
+4. **Select GCP project** — with a non-blocking billing check
+5. **Install Python dependencies** — creates `.venv`, regenerates `requirements.txt` via `pip-compile` if missing
+6. **Enable Vertex AI API** — `aiplatform.googleapis.com`
+7. **Generate `.env`** — populates all model tiers (router/fast/heavy)
+8. **Verify installation** — checks `adk --version` and imports `root_agent`
 
 **Linux/macOS:**
 ```bash
@@ -91,6 +96,11 @@ bash scripts/setup.sh
 ```powershell
 .\scripts\setup.ps1
 ```
+
+**Supported platforms:**
+- macOS (Homebrew)
+- Linux: Debian/Ubuntu (`apt`), RHEL/Fedora (`dnf`), Arch (`pacman`)
+- Windows 10/11 with PowerShell + winget
 
 ### 3. Manual setup (Optional)
 
@@ -233,6 +243,35 @@ bwia-smart-code-builder/
 - **Runtime**: Python 3.11+ / FastAPI / Uvicorn
 - **Deployment**: Google Cloud Run + Artifact Registry
 - **Container**: Podman (Docker compatible)
+
+## Troubleshooting
+
+**`adk: command not found` after setup**
+Re-activate your virtual environment:
+```bash
+source .venv/bin/activate           # macOS/Linux
+.\.venv\Scripts\Activate.ps1        # Windows
+```
+
+**`PermissionDenied: 403` on Vertex AI calls**
+Your account needs `roles/aiplatform.user` (or `Editor`/`Owner`) on the GCP project:
+```bash
+gcloud projects add-iam-policy-binding $GCP_PROJECT_ID \
+  --member="user:$(gcloud config get-value account)" \
+  --role="roles/aiplatform.user"
+```
+
+**`Model not found` for `gemini-2.5-pro`**
+Ensure `GCP_LOCATION=global` in `smart_code_builder/.env`. Preview/new models are only available on the global endpoint.
+
+**`adk web` times out or hangs**
+The first invocation loads the model and can take 20-30s. If it takes longer, check:
+- Billing is enabled on the project
+- `gcloud auth application-default login` was run
+- `GOOGLE_GENAI_USE_VERTEXAI=true` is set (auto-configured by `config.py`)
+
+**Setup script fails on Linux**
+If you're on a distro without `apt`/`dnf`/`pacman`, install Python 3.11+, `gcloud`, and `git` manually, then re-run the script.
 
 ## License
 

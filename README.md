@@ -37,7 +37,7 @@ Built for [Google Build with AI 2025](https://buildwithai.devpost.com/).
 | **modernize_code**     | LlmAgent        | `heavy` (Pro)         | Transforms legacy code to modern versions (Python 3.12+, ES2024+, TS 5.x+)            |
 | **audit_repo**         | SequentialAgent | —                     | Clones a GitHub repository and generates a quality/security/architecture audit report |
 | ↳ repo_crawler         | LlmAgent        | `fast` (Flash)        | Explores repository structure and reads key files                                     |
-| ↳ audit_reporter       | LlmAgent        | `heavy` (Pro)         | Analyzes code against standards and produces scored report                            |
+| ↳ audit_reporter       | LlmAgent        | `fast` (Flash)        | Produces a concise audit report from the crawled repository context                   |
 
 ### Tools
 
@@ -118,11 +118,11 @@ source .venv/bin/activate  # On Windows: .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 
 # Configure environment
-cp .env.example .env
-# Edit .env with your GCP_PROJECT_ID
+cp .env.example smart_code_builder/.env
+# Edit smart_code_builder/.env with your GCP_PROJECT_ID
 ```
 
-Edit `.env` with your values:
+Edit `smart_code_builder/.env` with your values:
 
 ```bash
 GCP_PROJECT_ID=your-gcp-project-id
@@ -227,7 +227,6 @@ bwia-smart-code-builder/
 ├── standards/                   # Coding standards (open source)
 │   ├── python_standards.md      # Python best practices
 │   └── typescript_standards.md  # TypeScript best practices
-├── tests/                       # Test suite
 ├── scripts/                     # Utility scripts
 ├── .env.example                 # Environment template
 ├── Dockerfile                   # Cloud Run container
@@ -245,7 +244,7 @@ bwia-smart-code-builder/
   | `router` | gemini-2.5-flash-lite | Intent classification (lowest cost) |
   | `fast` | gemini-2.5-flash | Code generation, repo crawling |
   | `heavy` | gemini-2.5-pro | Deep analysis, code review, audits |
-- **Runtime**: Python 3.11+ / FastAPI / Uvicorn
+- **Runtime**: Python 3.11+ / Google ADK runtime server
 - **Deployment**: Google Cloud Run + Artifact Registry
 - **Container**: Podman (Docker compatible)
 

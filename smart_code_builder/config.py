@@ -1,6 +1,7 @@
 """Configuracion centralizada del proyecto."""
 
 import os
+import tempfile
 
 from dotenv import load_dotenv
 
@@ -28,4 +29,4 @@ STANDARDS_DIR: str = os.path.join(
     os.path.dirname(os.path.dirname(__file__)), "standards"
 )
 
-TEMP_DIR: str = os.path.join("/tmp", "bwia-audit")
+TEMP_DIR: str = os.path.join(tempfile.gettempdir(), "bwia-audit")

@@ -58,12 +58,18 @@ def clone_git_repository(repo_url: str) -> str:
         Path absoluto al directorio donde se clono el repo.
     """
     _cleanup_old_repos()
+    os.makedirs(TEMP_DIR, exist_ok=True)
     clone_dir = os.path.join(TEMP_DIR, f"repo-{uuid.uuid4().hex[:8]}")
-    os.makedirs(clone_dir, exist_ok=True)
-    subprocess.run(
-        ["git", "clone", "--depth", "1", repo_url, clone_dir],
-        check=True, timeout=120, capture_output=True, text=True,
-    )
+    try:
+        subprocess.run(
+            ["git", "clone", "--depth", "1", repo_url, clone_dir],
+            check=True, timeout=120, capture_output=True, text=True,
+        )
+    except subprocess.CalledProcessError as exc:
+        error_detail = exc.stderr.strip() or exc.stdout.strip() or str(exc)
+        raise RuntimeError(
+            f"No se pudo clonar el repositorio '{repo_url}': {error_detail}"
+        ) from exc
     return clone_dir
 
 

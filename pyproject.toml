@@ -1,7 +1,7 @@
 [project]
 name = "bwia-smart-code-builder"
 version = "0.1.0"
-description = "Build Smarter Code With AI Agents - Claude on Vertex AI"
+description = "Build smarter code with Google ADK agents and Gemini on Vertex AI"
 requires-python = ">=3.11"
 
 [tool.black]

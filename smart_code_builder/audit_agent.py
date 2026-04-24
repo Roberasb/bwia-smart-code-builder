@@ -27,7 +27,7 @@ PROCESO:
 1. Usa clone_git_repository con la URL del mensaje
 2. Usa list_repository_tree para ver la estructura
 3. Usa list_analyzable_files para encontrar codigo fuente
-4. Lee los 5-8 archivos MAS IMPORTANTES con read_file_content:
+4. Lee solo 3-5 archivos MAS IMPORTANTES con read_file_content:
    - Entry points (main.py, index.js, app.py)
    - Config (package.json, requirements.txt, pyproject.toml, Dockerfile)
    - README si existe
@@ -35,10 +35,13 @@ PROCESO:
    exceda un tamaño razonable. Si un archivo es muy grande, omite las
    partes menos relevantes.
 
-FORMATO: Incluye TODO el contenido de los archivos leidos en tu
-respuesta, los agentes siguientes lo necesitan como contexto.
-Se conciso: incluye solo el contenido relevante, no repitas
-metadatos ya cubiertos por el tree.""",
+FORMATO:
+- Incluye el tree y la lista de archivos analizados.
+- Resume cada archivo leido con puntos concretos.
+- Solo incluye fragmentos de codigo o configuracion cuando sean
+  esenciales para el analisis.
+- NO incluyas el contenido completo de todos los archivos.
+- No repitas metadatos ya cubiertos por el tree.""",
     tools=[
         clone_git_repository,
         list_repository_tree,
@@ -50,8 +53,8 @@ metadatos ya cubiertos por el tree.""",
 )
 
 audit_reporter_agent = LlmAgent(
-    model=get_model("heavy"),
-    generate_content_config=get_generate_config("heavy"),
+    model=get_model("fast"),
+    generate_content_config=get_generate_config("fast"),
     name="audit_reporter",
     instruction="""Eres un auditor senior de codigo. Con base en la
 estructura y contenido del repositorio (en el contexto), genera un
@@ -97,6 +100,9 @@ Patrones, modularidad, escalabilidad, observabilidad.
 
 ## Recomendaciones
 Lista priorizada de acciones concretas.
+
+Se concreto. Prioriza senales de alto impacto sobre exhaustividad.
+Evita reportes excesivamente largos.
 
 Responde siempre en espanol.""",
     tools=[load_coding_standards],

@@ -18,4 +18,4 @@ ENV PORT=8000
 
 EXPOSE 8000
 
-CMD ["adk", "api_server", "--port=8000", "--host=0.0.0.0", "smart_code_builder"]
+CMD ["adk", "api_server", "--port=8000", "--host=0.0.0.0", "."]
